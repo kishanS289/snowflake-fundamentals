@@ -1,0 +1,10 @@
+
+
+select * FROM customer;
+
+ALTER SESSION
+SET USE_CACHED_RESULT=FALSE;
+
+SHOW TABLES;
+
+SELECT COUNT(*) FROM orders;
