@@ -1,0 +1,65 @@
+SHOW TABLES;
+
+SELECT * FROM MOVIES;
+
+
+--CREATE FILE FORMAT
+CREATE FILE FORMAT SNOWSQL_CSVTYPE
+TYPE=CSV SKIP_HEADER=1;
+
+--CREATE INTERNAL STAGE
+CREATE STAGE SNOWSQL_CUST_STAGE
+FILE_FORMAT='SNOWSQL_CSVTYPE';
+
+LIST @SNOWSQL_CUST_STAGE;
+
+--loaded through SNOWSQL from SNOWSQL CLI
+put file://Downloads\opptyHistoryDS.csv @SNOWSQL_CUST_STAGE;
+
+SELECT $1,$2,$3,$4,$5,$6,$7,$8 FROM @SNOWSQL_CUST_STAGE;
+
+--loaded through SNOWSQL from SNOWSQL CLI after modifying the source file
+put file://Downloads\opptyHistoryDS.csv @SNOWSQL_CUST_STAGE overwrite=true;
+
+SELECT $1,$2,$3,$4,$5,$6,$7,$8 FROM @SNOWSQL_CUST_STAGE;
+
+
+put file://Downloads\schema_sample.csv @SNOWSQL_CUST_STAGE;
+
+SHOW STAGES;
+LIST @SNOWSQL_CUST_STAGE;
+
+SELECT $1,$2,$3,$4,$5,$6,$7,$8 FROM @SNOWSQL_CUST_STAGE/schema_sample.csv;
+
+REMOVE @SNOWSQL_CUST_STAGE/schema_sample.csv;
+
+
+SELECT $1,$2,$3,REPLACE($3,32400,200) AS NEW$3,$4,$5,$6,$7,$8 FROM @SNOWSQL_CUST_STAGE/schema_sample.csv;
+
+SELECT $1,$2,$3,$4,$5,$6,$7,$8 FROM @SNOWSQL_CUST_STAGE/opptyHistoryDS.csv;
+
+SELECT $2,SUM($3) AS TOTALSUM,COUNT($4),SUM($4) FROM @SNOWSQL_CUST_STAGE/opptyHistoryDS.csv GROUP BY $2;
+
+
+CREATE STAGE CUST_1L;
+
+DESC STAGE CUST_1L;
+
+--COPY FILES IN STAGES
+
+COPY FILES INTO @CUST_1L FROM @SNOWSQL_CUST_STAGE;
+
+LIST @CUST_1L;
+
+COPY INTO @CUST_1L FROM SNOWFLAKE_SAMPLE_DATA.TPCH_SF1.CUSTOMER;
+
+
+--GET FILES FROM STAGES
+get @CUST_1L file://D:\Snowflake\FetchSnowflakeFiles
+                                                                   
+
+
+
+
+
+
